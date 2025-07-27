@@ -19,7 +19,9 @@ services:
   catalogue:
     image: aneelp/catalogue:v1
     container_name: catalogue
-
+    depends_on:
+      - mongodb
+    
   redis:
     image: redis:7
     container_name: redis
@@ -29,10 +31,16 @@ services:
   cart:
     image: aneelp/cart:v1
     container_name: cart
+    depends_on:
+      - redis
+      - catalogue
 
   user:
     image: aneelp/user:v1
     container_name: user
+    depends_on:
+      - mongodb
+      - redis
 
   mysql:
     image: aneelp/mysql:v1
@@ -43,12 +51,18 @@ services:
   shipping:
     image: aneelp/shipping:v1
     container_name: shipping
+    depends_on:
+      - mysql
+      - cart
 
   rabbitmq:
     image: rabbitmq:3
     container_name: rabbitmq
     volumes:
-      - rabbitmq:var/lib/rabbitmq  
+      - rabbitmq:var/lib/rabbitmq 
+    environment:
+      RABBITMQ_DEFAULT_USER: roboshop
+      RABBITMQ_DEFAULT_PASS: roboshop123
         
   payment:
     image: aneelp/payment:v1
@@ -65,11 +79,19 @@ services:
       - cart
       - user
       - rabbitmq
-          
+
   
   frontend:
     image: aneelp/frontend:v1
     container_name: frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - catalogue
+      - cart
+      - user
+      - shipping
+      - payment
 
 
 
