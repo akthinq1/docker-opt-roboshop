@@ -26,6 +26,7 @@ COPY *.js .
 COPY package.json .
 RUN npm install
 
+# stage two docker file, it will run use builder to dependency
 FROM node:20-alpine3.21
 RUN addgroup -S roboshop && adduser -S roboshop -G roboshop
 ENV MONGO="true" \
